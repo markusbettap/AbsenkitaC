@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Absensi Kelas C - UNPATTI</title>
+    <!-- Tailwind CSS untuk Desain Modern -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; color: black; }
+            .print-card { border: none !important; box-shadow: none !important; padding: 0 !important; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans pb-12">
+
+    <!-- Header / Navbar -->
+    <header class="bg-blue-800 text-white shadow-md no-print">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="text-center sm:text-left">
+                <h1 class="text-xl font-bold tracking-wide">UNIVERSITAS PATTIMURA AMBON</h1>
+                <p class="text-xs text-blue-200">Kementerian Pendidikan Tinggi, Sains, dan Teknologi</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="eksporCSV()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow transition-all cursor-pointer">
+                    📥 Ekspor ke Excel (CSV)
+                </button>
+                <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow transition-all cursor-pointer">
+                    🖨️ Cetak / PDF
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Konten Utama -->
+    <main class="max-w-6xl mx-auto px-4 mt-6">
+        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 print-card">
+            
+            <!-- Identitas Kuliah -->
+            <div class="border-b pb-4 mb-6 text-center sm:text-left">
+                <h2 class="text-lg font-bold text-gray-800 uppercase tracking-wide">Laporan Absensi Harian Mahasiswa</h2>
+                <p class="text-md text-blue-800 font-semibold">Pendidikan Jasmani, Kesehatan & Rekreasi (2025/2026 Genap)</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4 text-sm text-gray-600">
+                    <div><span class="font-medium">Mata Kuliah:</span> Pendidikan Rekreasi dan Outbond</div>
+                    <div><span class="font-medium">Nama Kelas:</span> C</div>
+                    <div><span class="font-medium">Dosen:</span> Dr. Bahmid Hasbullah, M.Pd / Mesak Hattu, S.Pd., M.Pd</div>
+                    <div class="no-print flex items-center gap-2">
+                        <span class="font-medium">Tanggal & Pertemuan:</span>
+                        <input type="date" id="tglAbsen" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-blue-500">
+                        <input type="number" id="pertemuanKe" placeholder="Pertemuan Ke-" min="1" max="16" class="w-28 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabel Absen -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-700 uppercase text-xs tracking-wider border-b border-gray-200">
+                            <th class="py-3 px-4 text-center w-12">No</th>
+                            <th class="py-3 px-4 w-32">NIM</th>
+                            <th class="py-3 px-4">Nama Mahasiswa</th>
+                            <th class="py-3 px-4 text-center w-64">Status Kehadiran</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelMahasiswa" class="text-sm text-gray-700 divide-y divide-gray-100">
+                        <!-- Data di-render lewat JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Ringkasan Absen -->
+            <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 text-center">
+                <div class="bg-white p-3 rounded-lg border border-green-200"><p class="text-xs text-gray-500 font-medium">HADIR (H)</p><p id="countH" class="text-xl font-bold text-green-600">0</p></div>
+                <div class="bg-white p-3 rounded-lg border border-yellow-200"><p class="text-xs text-gray-500 font-medium">SAKIT (S)</p><p id="countS" class="text-xl font-bold text-yellow-500">0</p></div>
+                <div class="bg-white p-3 rounded-lg border border-blue-200"><p class="text-xs text-gray-500 font-medium">IZIN (I)</p><p id="countI" class="text-xl font-bold text-blue-500">0</p></div>
+                <div class="bg-white p-3 rounded-lg border border-red-200"><p class="text-xs text-gray-500 font-medium">ALFA (A)</p><p id="countA" class="text-xl font-bold text-red-600">0</p></div>
+            </div>
+
+            <!-- Tanda Tangan Virtual saat di-print -->
+            <div class="hidden print:flex justify-between mt-12 text-sm text-center">
+                <div>
+                    <p>Mengetahui,</p>
+                    <p>Dosen Pengajar</p>
+                    <br><br><br>
+                    <p class="font-bold">( _______________________ )</p>
+                </div>
+                <div>
+                    <p>Ambon, <span id="printTanggal">...................</span></p>
+                    <p>Ketua Kelas / Komisaris</p>
+                    <br><br><br>
+                    <p class="font-bold">( _______________________ )</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Data Mahasiswa dari Berkas SIAKAD Kelas C[cite: 1]
+        const dataMahasiswa = [
+            { nim: "202438034", nama: "Andi Iksal Tehuayo" },
+            { nim: "202438006", nama: "Chelsea Victoria Sajojo Bones Teniwut" },
+            { nim: "202438039", nama: "Ridwan Ulath" },
+            { nim: "202438045", nama: "Sofyan Agus Latukau" },
+            { nim: "202438015", nama: "Intan Ramadani" },
+            { nim: "202438024", nama: "Markus Christo Betaubun" },
+            { nim: "202438009", nama: "Andini" },
+            { nim: "202438011", nama: "Ferderika Dawan" },
+            { nim: "202438028", nama: "Wa Ode Aswi" },
+            { nim: "202438005", nama: "Chintya Talahatu" },
+            { nim: "202438087", nama: "Hidayat Keliobas" },
+            { nim: "202438035", nama: "Rati Umasugi" },
+            { nim: "202438051", nama: "Said Zakir Alatas" },
+            { nim: "202438012", nama: "Indah Syarifa Sagena" },
+            { nim: "202438019", nama: "Andreas Del Piero Renyaan" },
+            { nim: "202438022", nama: "Vindy Nesyanti Putri" },
+            { nim: "202438013", nama: "Syahril Sidik" },
+            { nim: "202438080", nama: "Sujialim Tamrin" },
+            { nim: "202438032", nama: "Anggun Juliyani" },
+            { nim: "202438021", nama: "Destiyan" },
+            { nim: "202238001", nama: "Umi Kalsum Elian" },
+            { nim: "202438053", nama: "Yusril Sofyan" },
+            { nim: "202438041", nama: "Feron Hendra Liulessy" },
+            { nim: "202138063", nama: "Mozyo Rupilu" },
+            { nim: "202438062", nama: "Abdul Karim Daeng Matally" }
+        ];
+
+        // Set tanggal default hari ini
+        const hariIni = new Date().toISOString().split('T')[0];
+        document.getElementById('tglAbsen').value = hariIni;
+        document.getElementById('printTanggal').innerText = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        // Render tabel mahasiswa ke HTML
+        const tbody = document.getElementById('tabelMahasiswa');
+        dataMahasiswa.forEach((mhs, index) => {
+            const row = document.createElement('tr');
+            row.className = "hover:bg-gray-50 transition-colors";
+            row.innerHTML = `
+                <td class="py-3 px-4 text-center font-medium text-gray-500">${index + 1}</td>
+                <td class="py-3 px-4 font-mono text-xs">${mhs.nim}</td>
+                <td class="py-3 px-4 font-medium text-gray-900">${mhs.nama}</td>
+                <td class="py-3 px-4 text-center">
+                    <div class="flex justify-center gap-3 atau-opsi">
+                        ${['H', 'S', 'I', 'A'].map(status => {
+                            let colorClass = status === 'H' ? 'peer-checked:bg-green-600 peer-checked:text-white border-green-400 text-green-700' :
+                                             status === 'S' ? 'peer-checked:bg-yellow-500 peer-checked:text-white border-yellow-400 text-yellow-700' :
+                                             status === 'I' ? 'peer-checked:bg-blue-500 peer-checked:text-white border-blue-400 text-blue-700' :
+                                                              'peer-checked:bg-red-600 peer-checked:text-white border-red-400 text-red-700';
+                            return `
+                                <label class="cursor-pointer text-xs font-bold">
+                                    <input type="radio" name="status-${mhs.nim}" value="${status}" class="sr-only peer" ${status === 'H' ? 'checked' : ''} onchange="hitungTotal()">
+                                    <span class="w-8 h-8 flex items-center justify-center rounded-full border-2 transition-all ${colorClass}">${status}</span>
+                                </label>
+                            `;
+                        }).join('')}
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        // Fungsi Hitung Rekapitulasi secara Real-time
+        function hitungTotal() {
+            let h = 0, s = 0, i = 0, a = 0;
+            dataMahasiswa.forEach(mhs => {
+                const radio = document.querySelector(`input[name="status-${mhs.nim}"]:checked`);
+                if (radio) {
+                    if (radio.value === 'H') h++;
+                    if (radio.value === 'S') s++;
+                    if (radio.value === 'I') i++;
+                    if (radio.value === 'A') a++;
+                }
+            });
+            document.getElementById('countH').innerText = h;
+            document.getElementById('countS').innerText = s;
+            document.getElementById('countI').innerText = i;
+            document.getElementById('countA').innerText = a;
+        }
+
+        // Fungsi Ekspor Data ke File Excel (Format CSV)
+        function eksporCSV() {
+            const tgl = document.getElementById('tglAbsen').value;
+            const ptm = document.getElementById('pertemuanKe').value || 'X';
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += `LAPORAN ABSENSI KELAS C - PENDIDIKAN REKREASI DAN OUTBOND\n`;
+            csvContent += `Tanggal: ${tgl}, Pertemuan Ke: ${ptm}\n\n`;
+            csvContent += "No,NIM,Nama Mahasiswa,Status Kehadiran\n";
+
+            dataMahasiswa.forEach((mhs, index) => {
+                const radio = document.querySelector(`input[name="status-${mhs.nim}"]:checked`);
+                const status = radio ? radio.value : '-';
+                csvContent += `${index + 1},'${mhs.nim},${mhs.nama},${status}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Absen_Kelas_C_Pertemuan_${ptm}_(${tgl}).csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Jalankan hitungan pertama kali saat web dibuka
+        hitungTotal();
+    </script>
+</body>
+</html>
