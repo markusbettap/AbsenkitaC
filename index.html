@@ -166,54 +166,50 @@
                 </div>
 
                 <div class="p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <!-- Left: Camera & Verification Setup -->
+                    <!-- Left: Photo Upload & Verification Setup -->
                     <div class="lg:col-span-7 flex flex-col gap-4">
                         <h4 class="text-md font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-camera text-unpatti-600"></i> 1. Verifikasi Foto Wajah
+                            <i class="fa-solid fa-cloud-arrow-up text-unpatti-600"></i> 1. Unggah Foto Kuliah (Bukti Kehadiran)
                         </h4>
                         
-                        <!-- Camera Screen Shell -->
-                        <div class="relative aspect-video w-full bg-slate-950 rounded-2xl overflow-hidden border border-slate-200 shadow-inner flex flex-col items-center justify-center group">
-                            <!-- Video Stream Element -->
-                            <video id="webcam-stream" autoplay playsinline class="w-full h-full object-cover hidden"></video>
+                        <!-- File Drop & Upload Zone Container -->
+                        <div id="upload-container" onclick="triggerFileInput()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" class="relative aspect-video w-full bg-slate-50 hover:bg-slate-100/70 rounded-2xl overflow-hidden border-2 border-dashed border-slate-300 hover:border-unpatti-500 transition-all flex flex-col items-center justify-center p-6 text-center group cursor-pointer shadow-inner">
+                            <input type="file" id="photo-upload-input" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
                             
-                            <!-- Static Capture/Canvas Element -->
-                            <canvas id="face-canvas" class="w-full h-full object-cover hidden"></canvas>
-
-                            <!-- Placeholder/Camera Mask Overlay -->
-                            <div id="camera-placeholder" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-slate-400 bg-slate-900 transition-all">
-                                <div class="w-16 h-16 rounded-full bg-slate-800/80 flex items-center justify-center mb-3 border border-slate-700/50">
-                                    <i class="fa-solid fa-video-slash text-xl text-slate-400"></i>
+                            <!-- Static Prompt View -->
+                            <div id="upload-prompt" class="flex flex-col items-center justify-center transition-all duration-200">
+                                <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mb-3 group-hover:scale-105 group-hover:bg-unpatti-50 group-hover:text-unpatti-600 transition-all duration-300">
+                                    <i class="fa-solid fa-image text-2xl"></i>
                                 </div>
-                                <h5 class="text-sm font-bold text-white">Kamera Belum Aktif</h5>
-                                <p class="text-xs text-slate-400 max-w-xs mt-1 leading-relaxed">Klik aktifkan kamera untuk mengambil foto verifikasi wajah langsung.</p>
-                                <button type="button" onclick="startCamera()" class="mt-4 bg-unpatti-600 hover:bg-unpatti-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer">
-                                    <i class="fa-solid fa-play"></i> Aktifkan Kamera
-                                </button>
+                                <h5 class="text-sm font-bold text-slate-800">Klik atau Tarik Foto ke Sini</h5>
+                                <p class="text-xs text-slate-400 max-w-xs mt-1.5 leading-relaxed">Pilih berkas foto saat Anda sedang mengikuti perkuliahan sebagai pembuktian.</p>
                             </div>
 
-                            <!-- Face Oval Guide Overlay (Shows only when live camera is working) -->
-                            <div id="camera-guide" class="absolute inset-0 border-4 border-dashed border-unpatti-500/40 rounded-xl pointer-events-none hidden flex items-center justify-center">
-                                <div class="w-48 h-64 border-4 border-white/60 rounded-[100px] shadow-[0_0_0_9999px_rgba(15,23,42,0.4)] relative">
-                                    <span class="absolute bottom-4 left-1/2 -translate-x-1/2 text-[10px] font-bold text-white uppercase tracking-wider bg-slate-900/80 px-2 py-1 rounded-full whitespace-nowrap">Posisikan Wajah</span>
+                            <!-- Image Preview View -->
+                            <div id="upload-preview-wrapper" class="absolute inset-0 hidden bg-slate-950 flex items-center justify-center">
+                                <img id="uploaded-photo-preview" src="" alt="Bukti Foto Kuliah" class="w-full h-full object-cover">
+                                <!-- Filename & Check Watermark -->
+                                <div class="absolute bottom-4 left-4 right-4 bg-slate-900/80 backdrop-blur-md border border-slate-700/40 p-2.5 rounded-xl flex items-center justify-between text-white">
+                                    <div class="flex items-center gap-2 truncate">
+                                        <i class="fa-solid fa-circle-check text-green-500 text-sm shrink-0"></i>
+                                        <span id="uploaded-filename" class="text-xs font-semibold truncate">nama_foto.jpg</span>
+                                    </div>
+                                    <span class="text-[9px] bg-unpatti-600 text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">Berhasil Dipilih</span>
                                 </div>
                             </div>
-
-                            <!-- Indicator Snapshot Success Overlay -->
-                            <div id="capture-indicator" class="absolute inset-0 bg-white opacity-0 transition-opacity pointer-events-none duration-150"></div>
                         </div>
 
-                        <!-- Camera Action Bar -->
+                        <!-- Upload Action Bar -->
                         <div class="flex flex-wrap gap-2.5">
-                            <button type="button" id="btn-capture-photo" onclick="capturePhoto()" disabled class="flex-grow sm:flex-grow-0 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold px-5 py-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer">
-                                <i class="fa-solid fa-camera-retro"></i> Jepret Foto
+                            <button type="button" onclick="triggerFileInput()" class="flex-grow sm:flex-grow-0 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-5 py-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md">
+                                <i class="fa-solid fa-folder-open"></i> Pilih Berkas Foto
                             </button>
-                            <button type="button" id="btn-reset-camera" onclick="resetPhoto()" disabled class="bg-slate-200 hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed text-slate-700 text-xs font-bold px-4 py-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer">
-                                <i class="fa-solid fa-arrow-rotate-left"></i> Ambil Ulang
+                            <button type="button" id="btn-clear-photo" onclick="clearUploadedPhoto()" disabled class="bg-slate-200 hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed text-slate-700 text-xs font-bold px-4 py-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-trash"></i> Hapus Foto
                             </button>
-                            <!-- Smart Simulator Toggle in case device has no working webcam -->
-                            <button type="button" onclick="simulateFacePhoto()" class="ml-auto text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 px-4 py-3 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer">
-                                <i class="fa-solid fa-user-ninja"></i> Simulasi Foto
+                            <!-- Smart Simulator Toggle -->
+                            <button type="button" onclick="simulateUploadedPhoto()" class="ml-auto text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 px-4 py-3 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Simulasi Foto
                             </button>
                         </div>
                     </div>
@@ -529,11 +525,10 @@
             { nim: "202438062", nama: "Abdul Karim Daeng Matally" }
         ];
 
-        // In-Memory Database State (No localstorage according to guidelines, default to fully functional in-memory)
+        // In-Memory Database State (Default to fully functional in-memory)
         let attendanceRecords = [];
         let activeStudent = null;
-        let webcamStreamRef = null;
-        let lastCapturedPhoto = null;
+        let lastCapturedPhoto = null; // Stores Base64 string of chosen image
         let correctionTargetNim = null;
 
         // Initialize App & Populate selectors
@@ -589,7 +584,6 @@
                 document.getElementById('view-lecturer').classList.remove('hidden');
                 tabLecturer.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 bg-white text-unpatti-700 shadow-sm";
                 renderAttendanceMonitor();
-                stopCamera(); // Safety close camera stream if student transitions to instructor monitor
             }
             playTone('neutral');
         }
@@ -614,7 +608,7 @@
                 
                 // Clear state inputs
                 document.getElementById('student-notes').value = "";
-                resetPhoto();
+                clearUploadedPhoto();
 
                 // Switch UI screen view
                 document.getElementById('view-login').classList.add('hidden');
@@ -629,7 +623,6 @@
         }
 
         function logoutStudent() {
-            stopCamera();
             activeStudent = null;
             document.getElementById('login-nim').value = "";
             document.getElementById('login-name').value = "";
@@ -638,147 +631,100 @@
             showToast("Log Out", "Sesi login mahasiswa telah berakhir.", "info");
         }
 
-        // Hardware Camera Controls
-        async function startCamera() {
-            const videoEl = document.getElementById('webcam-stream');
-            const placeholder = document.getElementById('camera-placeholder');
-            const guide = document.getElementById('camera-guide');
-            const canvas = document.getElementById('face-canvas');
-            const btnCapture = document.getElementById('btn-capture-photo');
+        // Photo Upload Logic Handles
+        function triggerFileInput() {
+            document.getElementById('photo-upload-input').click();
+        }
 
-            canvas.classList.add('hidden');
+        function handleDragOver(e) {
+            e.preventDefault();
+            const zone = document.getElementById('upload-container');
+            zone.classList.add('border-unpatti-500', 'bg-unpatti-50/50');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            const zone = document.getElementById('upload-container');
+            zone.classList.remove('border-unpatti-500', 'bg-unpatti-50/50');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const zone = document.getElementById('upload-container');
+            zone.classList.remove('border-unpatti-500', 'bg-unpatti-50/50');
             
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { width: 640, height: 480, facingMode: "user" },
-                    audio: false
-                });
-                
-                webcamStreamRef = stream;
-                videoEl.srcObject = stream;
-                videoEl.classList.remove('hidden');
-                placeholder.classList.add('hidden');
-                guide.classList.remove('hidden');
-                
-                btnCapture.disabled = false;
-                playTone('neutral');
-                showToast("Kamera Aktif", "Akses kamera berhasil diizinkan.", "success");
-            } catch (err) {
-                console.warn("Camera failed/blocked:", err);
-                showToast("Akses Kamera Dibatalkan", "Menggunakan sistem cadangan visual cerdas.", "info");
-                // Run automatic fallback simulation
-                simulateFacePhoto();
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                const file = e.dataTransfer.files[0];
+                processSelectedImageFile(file);
             }
         }
 
-        function stopCamera() {
-            if (webcamStreamRef) {
-                webcamStreamRef.getTracks().forEach(track => track.stop());
-                webcamStreamRef = null;
+        function handleFileSelect(e) {
+            if (e.target.files && e.target.files[0]) {
+                const file = e.target.files[0];
+                processSelectedImageFile(file);
             }
-            const videoEl = document.getElementById('webcam-stream');
-            if (videoEl) videoEl.srcObject = null;
         }
 
-        function capturePhoto() {
-            const videoEl = document.getElementById('webcam-stream');
-            const canvas = document.getElementById('face-canvas');
-            const ctx = canvas.getContext('2d');
-            const btnCapture = document.getElementById('btn-capture-photo');
-            const btnReset = document.getElementById('btn-reset-camera');
-            const indicator = document.getElementById('capture-indicator');
-
-            if (!webcamStreamRef) return;
-
-            // Trigger shutter sound and flash animation
-            playShutterSound();
-            indicator.classList.remove('opacity-0');
-            indicator.classList.add('opacity-100');
-            setTimeout(() => {
-                indicator.classList.remove('opacity-100');
-                indicator.classList.add('opacity-0');
-            }, 150);
-
-            // Set canvas resolutions to match streaming video frame
-            canvas.width = videoEl.videoWidth;
-            canvas.height = videoEl.videoHeight;
-            
-            // Render mirroring capture
-            ctx.translate(canvas.width, 0);
-            ctx.scale(-1, 1);
-            ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-            ctx.setTransform(1, 0, 0, 1, 0, 0); // Restore orientation
-
-            // Save captured frame as Base64 source
-            lastCapturedPhoto = canvas.toDataURL('image/png');
-
-            // Toggle element visibility
-            videoEl.classList.add('hidden');
-            canvas.classList.remove('hidden');
-            document.getElementById('camera-guide').classList.add('hidden');
-
-            btnCapture.disabled = true;
-            btnReset.disabled = false;
-            stopCamera();
-            showToast("Foto Berhasil Dijepret", "Verifikasi wajah telah direkam.", "success");
-        }
-
-        function resetPhoto() {
-            const videoEl = document.getElementById('webcam-stream');
-            const canvas = document.getElementById('face-canvas');
-            const placeholder = document.getElementById('camera-placeholder');
-            const btnCapture = document.getElementById('btn-capture-photo');
-            const btnReset = document.getElementById('btn-reset-camera');
-
-            lastCapturedPhoto = null;
-            canvas.classList.add('hidden');
-            videoEl.classList.add('hidden');
-            placeholder.classList.remove('hidden');
-
-            btnCapture.disabled = true;
-            btnReset.disabled = true;
-            stopCamera();
-        }
-
-        // Fallback photo generator in case user doesn't have webcam/permission inside the preview box
-        function simulateFacePhoto() {
-            if (!activeStudent) {
-                showToast("Peringatan", "Harap masuk terlebih dahulu.", "warn");
+        function processSelectedImageFile(file) {
+            // Verify if it is an image
+            if (!file.type.match('image.*')) {
+                playTone('error');
+                showToast("Format Tidak Valid", "Silakan unggah berkas bertipe gambar (JPG, PNG, atau WEBP).", "danger");
                 return;
             }
-            playShutterSound();
+
+            // Verify file size limit (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                playTone('error');
+                showToast("Ukuran Berkas Terlalu Besar", "Batas maksimal ukuran foto adalah 5MB.", "danger");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                lastCapturedPhoto = event.target.result;
+                
+                // Update UI state with preview
+                document.getElementById('uploaded-photo-preview').src = lastCapturedPhoto;
+                document.getElementById('uploaded-filename').textContent = file.name;
+                
+                document.getElementById('upload-prompt').classList.add('hidden');
+                document.getElementById('upload-preview-wrapper').classList.remove('hidden');
+                document.getElementById('btn-clear-photo').disabled = false;
+
+                playTone('success');
+                showToast("Foto Berhasil Dimuat", "Bukti foto kuliah siap dilampirkan.", "success");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearUploadedPhoto() {
+            lastCapturedPhoto = null;
+            document.getElementById('photo-upload-input').value = '';
+            document.getElementById('uploaded-photo-preview').src = '';
+            
+            document.getElementById('upload-prompt').classList.remove('hidden');
+            document.getElementById('upload-preview-wrapper').classList.add('hidden');
+            document.getElementById('btn-clear-photo').disabled = true;
+        }
+
+        // Generator: Dynamic Vector avatar representation if user wants simulated photo
+        function simulateUploadedPhoto() {
+            if (!activeStudent) return;
+            playTone('success');
             
             // Set dynamic vector avatar representation as lastCapturedPhoto
             lastCapturedPhoto = generateAvatarSvg(activeStudent.nama);
 
-            // Display simulated avatar inside canvas space
-            const canvas = document.getElementById('face-canvas');
-            const ctx = canvas.getContext('2d');
-            const img = new Image();
-            img.onload = function() {
-                canvas.width = 400;
-                canvas.height = 300;
-                ctx.fillStyle = '#0f172a'; // slate-900 background
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 100, 50, 200, 200);
-                
-                // Add verification watermark overlay text
-                ctx.fillStyle = 'rgba(14, 165, 233, 0.2)';
-                ctx.fillRect(0, 260, canvas.width, 40);
-                ctx.fillStyle = '#0ea5e9';
-                ctx.font = 'bold 11px Inter, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('SIMULASI PEMINDAIAN WAJAH BERHASIL', 200, 284);
-                
-                canvas.classList.remove('hidden');
-                document.getElementById('camera-placeholder').classList.add('hidden');
-                document.getElementById('webcam-stream').classList.add('hidden');
-                document.getElementById('camera-guide').classList.add('hidden');
-                document.getElementById('btn-capture-photo').disabled = true;
-                document.getElementById('btn-reset-camera').disabled = false;
-            };
-            img.src = lastCapturedPhoto;
-            showToast("Simulasi Wajah Selesai", "Foto virtual cerdas berhasil dipasang.", "success");
+            document.getElementById('uploaded-photo-preview').src = lastCapturedPhoto;
+            document.getElementById('uploaded-filename').textContent = `simulasi_absen_${activeStudent.nim}.png`;
+            
+            document.getElementById('upload-prompt').classList.add('hidden');
+            document.getElementById('upload-preview-wrapper').classList.remove('hidden');
+            document.getElementById('btn-clear-photo').disabled = false;
+
+            showToast("Simulasi Berhasil", "Foto visual cerdas otomatis dipasang.", "success");
         }
 
         // Helper: Generate neat stylized custom SVG profiles on-the-fly dynamically
@@ -804,10 +750,10 @@
         function submitAttendance() {
             if (!activeStudent) return;
 
-            // Check if student has taken or selected a verification photo
+            // Check if student has uploaded/simulated a verification photo
             if (!lastCapturedPhoto) {
                 playTone('error');
-                showToast("Verifikasi Wajah Dibutuhkan", "Harap ambil atau jepret foto wajah Anda terlebih dahulu sebelum mengirim.", "danger");
+                showToast("Foto Bukti Dibutuhkan", "Harap unggah atau pilih foto bukti kehadiran Anda terlebih dahulu.", "danger");
                 return;
             }
 
@@ -899,7 +845,7 @@
                 
                 let photoThumbnail = `
                     <div class="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
-                        <i class="fa-regular fa-user"></i>
+                        <i class="fa-regular fa-image"></i>
                     </div>`;
 
                 if (record) {
@@ -965,7 +911,7 @@
             renderAttendanceMonitor();
         }
 
-        // Action Trigger: Reset/Clear All Attedance (Hapus Absen)
+        // Action Trigger: Reset/Clear All Attendance (Hapus Absen)
         function resetAllAttendance() {
             if (attendanceRecords.length === 0) {
                 showToast("Daftar Absen Kosong", "Belum ada data absensi untuk dikosongkan.", "warn");
@@ -1160,17 +1106,6 @@
             } catch (e) {
                 // browser bypass fail silently
             }
-        }
-
-        function playShutterSound() {
-            try {
-                // Synthetic camera shutter effect
-                const noise = new Tone.NoiseSynth({
-                    noise: { type: "white" },
-                    envelope: { attack: 0.005, decay: 0.1, sustain: 0 }
-                }).toDestination();
-                noise.triggerAttackRelease("16n");
-            } catch (e) {}
         }
     </script>
 </body>
