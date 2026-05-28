@@ -16,17 +16,8 @@
     <!-- Firebase Legacy SDKs (Compat) agar kompatibel langsung dalam satu file HTML -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-<const firebaseConfig = {
-  apiKey: "AIzaSyAEcz0j_Snp3UgQIilSfW1IpQEpjfLzXlc",
-  <authDomain: "siakadunpatti.firebaseapp.com",
-  <databaseURL: "https://siakadunpatti-default-rtdb.asia-southeast1.firebasedatabase.app",
-  <projectId: "siakadunpatti",
-  <storageBucket: "siakadunpatti.firebasestorage.app",
-  <messagingSenderId: "180404395654",
-  <appId: "1:180404395654:web:f2206c168100d055157b07",
-  <measurementId: "G-9VF12KNGR5"
-}
-        <script>
+
+    <script>
         tailwind.config = {
             theme: {
                 extend: {
@@ -121,7 +112,7 @@
                 </div>
 
                 <!-- Interactive Help Dropdown for Demo -->
-                <div class="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                <div class="no-print mb-6 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                             <i class="fa-solid fa-wand-magic-sparkles text-unpatti-600"></i> Pintasan Demo Instan
@@ -550,7 +541,7 @@
 
     <!-- LOGIKA JAVASCRIPT UTAMA -->
     <script>
-        // Data Otentik 25 Mahasiswa Kelas C - UNPATTI[cite: 1, 2]
+        // Data Otentik 25 Mahasiswa Kelas C - UNPATTI
         const REGISTERED_STUDENTS = [
             { nim: "202438034", nama: "Andi Iksal Tehuayo" },
             { nim: "202438006", nama: "Chelsea Victoria Sajojo Bones Teniwut" },
@@ -587,10 +578,17 @@
         let isFirebaseConnected = false;
         let firebaseDbRef = null;
 
-        // === FIREBASE CONFIGURATION STRATEGY ===
-        // Kode ini didesain agar otomatis mendeteksi konfigurasi Firebase.
-        // Anda juga bisa mengganti objek CONFIG_DI_BAWAH_INI langsung di file ini jika di-host di GitHub Pages.
-        const HARDCODED_FIREBASE_CONFIG = null; // Ganti null dengan config Anda jika ingin langsung online
+        // === KODE KONFIGURASI FIREBASE OTOMATIS ANDA ===
+        const HARDCODED_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyAEcz0j_Snp3UgQIiSfW1IpQEpjfLzXlc",
+            authDomain: "siakadunpatti.firebaseapp.com",
+            databaseURL: "https://siakadunpatti-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "siakadunpatti",
+            storageBucket: "siakadunpatti.firebasestorage.app",
+            messagingSenderId: "180404395654",
+            appId: "1:180404395654:web:f2206c168100d055157b07",
+            measurementId: "G-9VF12KNGR5"
+        };
 
         // Initialize App & Sync System
         window.addEventListener('DOMContentLoaded', () => {
