@@ -13,6 +13,10 @@
     <!-- Tone.js for professional UI sounds -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 
+    <!-- Firebase Legacy SDKs (Compat) agar kompatibel langsung dalam satu file HTML -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -70,16 +74,22 @@
                 </div>
                 <div>
                     <h1 class="text-md font-bold tracking-tight text-slate-900 leading-tight">SIAKAD UNPATTI</h1>
-                    <p class="text-xs text-slate-500 font-medium">Laporan Prosentase Absensi Mhs • Kelas C</p>
+                    <p class="text-xs text-slate-500 font-medium flex items-center gap-1.5">
+                        Laporan Prosentase Absensi Mhs • Kelas C
+                        <!-- Cloud Sync Status Indicator -->
+                        <span id="sync-status-badge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-700 border border-amber-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Mode Demo (Lokal)
+                        </span>
+                    </p>
                 </div>
             </div>
             
             <!-- Tab Navigation & Action Center -->
             <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-xl">
-                <button onclick="switchView('view-login')" id="btn-tab-student" class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 bg-white text-unpatti-700 shadow-sm">
+                <button onclick="switchView('view-login')" id="btn-tab-student" class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 bg-white text-unpatti-700 shadow-sm cursor-pointer">
                     <i class="fa-solid fa-user-check"></i> Portal Mahasiswa
                 </button>
-                <button onclick="switchView('view-lecturer')" id="btn-tab-lecturer" class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 text-slate-600 hover:text-slate-900">
+                <button onclick="switchView('view-lecturer')" id="btn-tab-lecturer" class="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer">
                     <i class="fa-solid fa-chalkboard-user"></i> Monitor Dosen / Ketua
                 </button>
             </div>
@@ -111,7 +121,6 @@
                     </div>
                     <select id="demo-student-selector" onchange="autoFillDemoStudent()" class="w-full text-xs bg-white border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-unpatti-500 outline-none text-slate-700 font-medium">
                         <option value="">-- Pilih Mahasiswa Demo --</option>
-                        <!-- Dynamic list populated from js -->
                     </select>
                 </div>
 
@@ -155,8 +164,8 @@
                         </div>
                         <div>
                             <span class="text-[10px] bg-unpatti-500/30 text-unpatti-200 font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border border-unpatti-500/20">Mahasiswa Aktif</span>
-                            <h3 id="portal-student-name" class="text-xl font-extrabold tracking-tight mt-1">Andi Iksal Tehuayo</h3>
-                            <p id="portal-student-nim" class="text-slate-300 text-sm font-mono mt-0.5">NIM: 202438034</p>
+                            <h3 id="portal-student-name" class="text-xl font-extrabold tracking-tight mt-1">Nama Mahasiswa</h3>
+                            <p id="portal-student-nim" class="text-slate-300 text-sm font-mono mt-0.5">NIM: 00000000</p>
                         </div>
                     </div>
                     
@@ -181,8 +190,8 @@
                                 <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mb-3 group-hover:scale-105 group-hover:bg-unpatti-50 group-hover:text-unpatti-600 transition-all duration-300">
                                     <i class="fa-solid fa-image text-2xl"></i>
                                 </div>
-                                <h5 class="text-sm font-bold text-slate-800">Klik atau Tarik Foto ke Sini</h5>
-                                <p class="text-xs text-slate-400 max-w-xs mt-1.5 leading-relaxed">Pilih berkas foto saat Anda sedang mengikuti perkuliahan sebagai pembuktian.</p>
+                                <h5 class="text-sm font-bold text-slate-800">Klik atau Tarik Foto Kuliah ke Sini</h5>
+                                <p class="text-xs text-slate-400 max-w-xs mt-1.5 leading-relaxed">Silakan lampirkan foto dokumentasi kegiatan perkuliahan Anda di kelas.</p>
                             </div>
 
                             <!-- Image Preview View -->
@@ -194,7 +203,7 @@
                                         <i class="fa-solid fa-circle-check text-green-500 text-sm shrink-0"></i>
                                         <span id="uploaded-filename" class="text-xs font-semibold truncate">nama_foto.jpg</span>
                                     </div>
-                                    <span class="text-[9px] bg-unpatti-600 text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">Berhasil Dipilih</span>
+                                    <span class="text-[9px] bg-unpatti-600 text-white px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">Foto Dipilih</span>
                                 </div>
                             </div>
                         </div>
@@ -202,14 +211,14 @@
                         <!-- Upload Action Bar -->
                         <div class="flex flex-wrap gap-2.5">
                             <button type="button" onclick="triggerFileInput()" class="flex-grow sm:flex-grow-0 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-5 py-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md">
-                                <i class="fa-solid fa-folder-open"></i> Pilih Berkas Foto
+                                <i class="fa-solid fa-folder-open"></i> Cari di Perangkat
                             </button>
                             <button type="button" id="btn-clear-photo" onclick="clearUploadedPhoto()" disabled class="bg-slate-200 hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed text-slate-700 text-xs font-bold px-4 py-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer">
-                                <i class="fa-solid fa-trash"></i> Hapus Foto
+                                <i class="fa-solid fa-trash"></i> Bersihkan
                             </button>
                             <!-- Smart Simulator Toggle -->
                             <button type="button" onclick="simulateUploadedPhoto()" class="ml-auto text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 px-4 py-3 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i> Simulasi Foto
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Gunakan Avatar
                             </button>
                         </div>
                     </div>
@@ -296,6 +305,10 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        <!-- Database Setup Button -->
+                        <button onclick="toggleDbSettingsModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-database"></i> Setup Database Cloud
+                        </button>
                         <!-- Reset Action Button -->
                         <button onclick="resetAllAttendance()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer">
                             <i class="fa-solid fa-trash-can"></i> Hapus Semua Absen
@@ -344,7 +357,7 @@
                     </div>
 
                     <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between col-span-2 lg:col-span-1">
-                        <span class="text-xs font-bold text-indigo-500 uppercase tracking-wider">Tingkat Absensi Hari 1</span>
+                        <span class="text-xs font-bold text-indigo-500 uppercase tracking-wider">Tingkat Absensi</span>
                         <div class="flex items-baseline gap-2 mt-2">
                             <span id="metric-percentage" class="text-3xl font-extrabold text-indigo-600">0%</span>
                             <span class="text-xs text-slate-500 font-medium">Hadir</span>
@@ -410,7 +423,7 @@
 
     <!-- MODAL 1: PREVIEW ZOOM PHOTO -->
     <div id="modal-zoom-photo" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden">
-        <div class="bg-white rounded-3xl overflow-hidden shadow-2xl max-w-sm w-full border border-slate-100 relative animate-scale-up">
+        <div class="bg-white rounded-3xl overflow-hidden shadow-2xl max-w-sm w-full border border-slate-100 relative">
             <button onclick="closeZoomModal()" class="absolute top-4 right-4 bg-slate-900/60 hover:bg-slate-900 text-white rounded-full w-8 h-8 flex items-center justify-center transition-all cursor-pointer">
                 <i class="fa-solid fa-xmark"></i>
             </button>
@@ -429,7 +442,7 @@
 
     <!-- MODAL 2: CUSTOM MANUAL CORRECTION (DOSEN) -->
     <div id="modal-edit-status" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden">
-        <div class="bg-white rounded-3xl overflow-hidden shadow-2xl max-w-md w-full border border-slate-100 animate-scale-up p-6">
+        <div class="bg-white rounded-3xl overflow-hidden shadow-2xl max-w-md w-full border border-slate-100 p-6">
             <h3 class="text-lg font-bold text-slate-900">Koreksi Absensi Mahasiswa</h3>
             <p class="text-xs text-slate-500 mt-0.5">Ubah status kehadiran atau catatan secara manual sebagai Dosen/Ketua Kelas.</p>
             
@@ -483,7 +496,39 @@
         </div>
     </div>
 
-    <!-- MODAL 3: CUSTOM NOTIFICATION TOAST/ALERT -->
+    <!-- MODAL 3: CLOUD DATABASE SETTINGS MODAL -->
+    <div id="modal-db-settings" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden">
+        <div class="bg-white rounded-3xl overflow-hidden shadow-2xl max-w-lg w-full border border-slate-100 p-6">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 class="text-md font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-nodes text-unpatti-600"></i> Setup Firebase Realtime Database
+                </h3>
+                <button onclick="toggleDbSettingsModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="my-4 space-y-3 text-xs leading-relaxed text-slate-600">
+                <p>Silakan buat akun Firebase gratis dan tempelkan <strong>Firebase Configuration Object</strong> Anda agar semua perangkat mahasiswa saling terhubung.</p>
+                
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Firebase Config JSON Object</label>
+                    <textarea id="db-config-input" placeholder='{\n  "apiKey": "AIzaSy...",\n  "authDomain": "...",\n  "databaseURL": "...",\n  "projectId": "...",\n  "appId": "..."\n}' rows="7" class="w-full border border-slate-200 rounded-xl p-3 font-mono text-xs focus:border-unpatti-500 transition-all outline-none bg-slate-50"></textarea>
+                </div>
+            </div>
+
+            <div class="flex gap-2 mt-4">
+                <button onclick="toggleDbSettingsModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition-all cursor-pointer">
+                    Tutup
+                </button>
+                <button onclick="saveFirebaseConfig()" class="w-1/2 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-md cursor-pointer">
+                    Koneksikan Database
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: CUSTOM NOTIFICATION TOAST/ALERT -->
     <div id="toast-message" class="fixed bottom-6 right-6 z-50 max-w-sm w-full bg-slate-900 text-white rounded-2xl p-4 shadow-2xl flex items-start gap-3 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none border border-slate-800">
         <div class="w-8 h-8 rounded-full flex items-center justify-center text-md shrink-0" id="toast-icon-bg">
             <i id="toast-icon" class="fa-solid fa-circle-info text-white"></i>
@@ -510,7 +555,7 @@
             { nim: "202438005", nama: "Chintya Talahatu" },
             { nim: "202438087", nama: "Hidayat Keliobas" },
             { nim: "202438035", nama: "Rati Umasugi" },
-            { nim: "202438051", nama: "Said Zakir Alatas" },
+            { nim: "202438051", legacy: true, nama: "Said Zakir Alatas" },
             { nim: "202438012", nama: "Indah Syarifa Sagena" },
             { nim: "202438019", nama: "Andreas Del Piero Renyaan" },
             { nim: "202438022", nama: "Vindy Nesyanti Putri" },
@@ -525,13 +570,20 @@
             { nim: "202438062", nama: "Abdul Karim Daeng Matally" }
         ];
 
-        // In-Memory Database State (Default to fully functional in-memory)
+        // Global State
         let attendanceRecords = [];
         let activeStudent = null;
-        let lastCapturedPhoto = null; // Stores Base64 string of chosen image
+        let lastCapturedPhoto = null; 
         let correctionTargetNim = null;
+        let isFirebaseConnected = false;
+        let firebaseDbRef = null;
 
-        // Initialize App & Populate selectors
+        // === FIREBASE CONFIGURATION STRATEGY ===
+        // Kode ini didesain agar otomatis mendeteksi konfigurasi Firebase.
+        // Anda juga bisa mengganti objek CONFIG_DI_BAWAH_INI langsung di file ini jika di-host di GitHub Pages.
+        const HARDCODED_FIREBASE_CONFIG = null; // Ganti null dengan config Anda jika ingin langsung online
+
+        // Initialize App & Sync System
         window.addEventListener('DOMContentLoaded', () => {
             const selector = document.getElementById('demo-student-selector');
             REGISTERED_STUDENTS.forEach(student => {
@@ -541,9 +593,100 @@
                 selector.appendChild(opt);
             });
             
-            // Display attendance monitor initially (starts empty as requested)
+            // Coba muat konfigurasi database
+            initFirebaseSystem();
             renderAttendanceMonitor();
         });
+
+        // Setup & Initialize Firebase Database
+        function initFirebaseSystem() {
+            let config = HARDCODED_FIREBASE_CONFIG;
+            
+            // Jika tidak di-hardcode, coba ambil dari localStorage (berguna untuk demo dosen)
+            if (!config) {
+                const savedConfig = localStorage.getItem('unpatti_firebase_config');
+                if (savedConfig) {
+                    try {
+                        config = JSON.parse(savedConfig);
+                    } catch (e) {
+                        console.error("Config format salah");
+                    }
+                }
+            }
+
+            if (config && config.databaseURL) {
+                try {
+                    // Cek jika app sudah terinisiasi sebelumnya
+                    if (firebase.apps.length === 0) {
+                        firebase.initializeApp(config);
+                    }
+                    
+                    firebaseDbRef = firebase.database().ref('kelas_c_attendance');
+                    isFirebaseConnected = true;
+                    
+                    // Dengarkan data dari Cloud secara Real-time!
+                    firebaseDbRef.on('value', (snapshot) => {
+                        const cloudData = snapshot.val();
+                        if (cloudData) {
+                            // Konversi objek database ke format array lokal
+                            attendanceRecords = Object.keys(cloudData).map(key => cloudData[key]);
+                        } else {
+                            attendanceRecords = [];
+                        }
+                        renderAttendanceMonitor();
+                    });
+
+                    updateSyncBadge(true);
+                    document.getElementById('db-config-input').value = JSON.stringify(config, null, 2);
+                } catch (error) {
+                    console.error("Gagal mengkoneksikan Firebase:", error);
+                    showToast("Database Error", "Gagal menghubungi server database.", "danger");
+                    updateSyncBadge(false);
+                }
+            } else {
+                updateSyncBadge(false);
+            }
+        }
+
+        function updateSyncBadge(online) {
+            const badge = document.getElementById('sync-status-badge');
+            if (online) {
+                badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-green-100 text-green-700 border border-green-200";
+                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Database Cloud Online`;
+            } else {
+                badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-700 border border-amber-200";
+                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Mode Demo (Lokal)`;
+            }
+        }
+
+        function toggleDbSettingsModal() {
+            const modal = document.getElementById('modal-db-settings');
+            modal.classList.toggle('hidden');
+        }
+
+        function saveFirebaseConfig() {
+            const val = document.getElementById('db-config-input').value.trim();
+            if (!val) {
+                localStorage.removeItem('unpatti_firebase_config');
+                showToast("Config Dihapus", "Konfigurasi database dibersihkan. Kembali ke mode lokal.", "info");
+                setTimeout(() => { location.reload(); }, 1000);
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(val);
+                if (!parsed.databaseURL) {
+                    throw new Error("Missing databaseURL");
+                }
+                localStorage.setItem('unpatti_firebase_config', JSON.stringify(parsed));
+                showToast("Tersambung!", "Database Firebase berhasil terhubung.", "success");
+                toggleDbSettingsModal();
+                setTimeout(() => { location.reload(); }, 1200);
+            } catch (e) {
+                playTone('error');
+                showToast("Format Salah", "Karakter JSON tidak valid. Pastikan format penulisan benar.", "danger");
+            }
+        }
 
         // Auto-fill form from pintasan demo
         function autoFillDemoStudent() {
@@ -560,29 +703,26 @@
 
         // Navigation Views Handler
         function switchView(viewId) {
-            // Hide all main section screens
             document.getElementById('view-login').classList.add('hidden');
             document.getElementById('view-attendance-portal').classList.add('hidden');
             document.getElementById('view-lecturer').classList.add('hidden');
 
-            // Reset navigation pills colors
             const tabStudent = document.getElementById('btn-tab-student');
             const tabLecturer = document.getElementById('btn-tab-lecturer');
             
-            tabStudent.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 text-slate-600 hover:text-slate-900";
-            tabLecturer.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 text-slate-600 hover:text-slate-900";
+            tabStudent.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer";
+            tabLecturer.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer";
 
             if (viewId === 'view-login') {
                 if (activeStudent) {
-                    // If student is authenticated, direct them directly to their submission dashboard instead of login
                     document.getElementById('view-attendance-portal').classList.remove('hidden');
                 } else {
                     document.getElementById('view-login').classList.remove('hidden');
                 }
-                tabStudent.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 bg-white text-unpatti-700 shadow-sm";
+                tabStudent.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 bg-white text-unpatti-700 shadow-sm cursor-pointer";
             } else if (viewId === 'view-lecturer') {
                 document.getElementById('view-lecturer').classList.remove('hidden');
-                tabLecturer.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 bg-white text-unpatti-700 shadow-sm";
+                tabLecturer.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all duration-200 bg-white text-unpatti-700 shadow-sm cursor-pointer";
                 renderAttendanceMonitor();
             }
             playTone('neutral');
@@ -594,7 +734,6 @@
             const inputNim = document.getElementById('login-nim').value.trim();
             const inputName = document.getElementById('login-name').value.trim();
 
-            // Match records with original class list
             const foundStudent = REGISTERED_STUDENTS.find(s => 
                 s.nim === inputNim && s.nama.toLowerCase() === inputName.toLowerCase()
             );
@@ -602,15 +741,12 @@
             if (foundStudent) {
                 activeStudent = foundStudent;
                 
-                // Set values to attendance dashboard
                 document.getElementById('portal-student-name').textContent = activeStudent.nama;
                 document.getElementById('portal-student-nim').textContent = `NIM: ${activeStudent.nim}`;
                 
-                // Clear state inputs
                 document.getElementById('student-notes').value = "";
                 clearUploadedPhoto();
 
-                // Switch UI screen view
                 document.getElementById('view-login').classList.add('hidden');
                 document.getElementById('view-attendance-portal').classList.remove('hidden');
                 
@@ -618,7 +754,7 @@
                 showToast("Autentikasi Berhasil", `Selamat datang kembali, ${activeStudent.nama}`, "success");
             } else {
                 playTone('error');
-                showToast("Autentikasi Gagal", "NIM atau Nama tidak cocok dengan database Mahasiswa Kelas C.", "danger");
+                showToast("Autentikasi Gagal", "NIM atau Nama tidak cocok dengan database Kelas C.", "danger");
             }
         }
 
@@ -631,7 +767,7 @@
             showToast("Log Out", "Sesi login mahasiswa telah berakhir.", "info");
         }
 
-        // Photo Upload Logic Handles
+        // Photo Upload Logics
         function triggerFileInput() {
             document.getElementById('photo-upload-input').click();
         }
@@ -667,17 +803,16 @@
         }
 
         function processSelectedImageFile(file) {
-            // Verify if it is an image
             if (!file.type.match('image.*')) {
                 playTone('error');
                 showToast("Format Tidak Valid", "Silakan unggah berkas bertipe gambar (JPG, PNG, atau WEBP).", "danger");
                 return;
             }
 
-            // Verify file size limit (5MB)
-            if (file.size > 5 * 1024 * 1024) {
+            // Batas maksimal ukuran foto 3MB agar performa database lancar
+            if (file.size > 3 * 1024 * 1024) {
                 playTone('error');
-                showToast("Ukuran Berkas Terlalu Besar", "Batas maksimal ukuran foto adalah 5MB.", "danger");
+                showToast("Ukuran Terlalu Besar", "Batas maksimal ukuran foto adalah 3MB.", "danger");
                 return;
             }
 
@@ -685,7 +820,6 @@
             reader.onload = function(event) {
                 lastCapturedPhoto = event.target.result;
                 
-                // Update UI state with preview
                 document.getElementById('uploaded-photo-preview').src = lastCapturedPhoto;
                 document.getElementById('uploaded-filename').textContent = file.name;
                 
@@ -714,7 +848,6 @@
             if (!activeStudent) return;
             playTone('success');
             
-            // Set dynamic vector avatar representation as lastCapturedPhoto
             lastCapturedPhoto = generateAvatarSvg(activeStudent.nama);
 
             document.getElementById('uploaded-photo-preview').src = lastCapturedPhoto;
@@ -724,14 +857,12 @@
             document.getElementById('upload-preview-wrapper').classList.remove('hidden');
             document.getElementById('btn-clear-photo').disabled = false;
 
-            showToast("Simulasi Berhasil", "Foto visual cerdas otomatis dipasang.", "success");
+            showToast("Avatar Berhasil Dipasang", "Foto visual kartun instan berhasil dibuat.", "success");
         }
 
-        // Helper: Generate neat stylized custom SVG profiles on-the-fly dynamically
         function generateAvatarSvg(name) {
             const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
             const colors = ['#0ea5e9', '#6366f1', '#a855f7', '#ec4899', '#f43f5e', '#10b981'];
-            // Deterministic selection based on string characters sum code
             let charCodeSum = 0;
             for (let i = 0; i < name.length; i++) charCodeSum += name.charCodeAt(i);
             const pickedColor = colors[charCodeSum % colors.length];
@@ -750,17 +881,16 @@
         function submitAttendance() {
             if (!activeStudent) return;
 
-            // Check if student has uploaded/simulated a verification photo
             if (!lastCapturedPhoto) {
                 playTone('error');
-                showToast("Foto Bukti Dibutuhkan", "Harap unggah atau pilih foto bukti kehadiran Anda terlebih dahulu.", "danger");
+                showToast("Foto Bukti Dibutuhkan", "Harap unggah atau buat foto bukti kehadiran terlebih dahulu.", "danger");
                 return;
             }
 
             const status = document.querySelector('input[name="student-status"]:checked').value;
             const note = document.getElementById('student-notes').value.trim();
             
-            // Capture accurate date and timestamp automatically
+            // Mengambil tanggal dan jam sistem secara otomatis
             const now = new Date();
             const day = String(now.getDate()).padStart(2, '0');
             const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -769,9 +899,6 @@
             const min = String(now.getMinutes()).padStart(2, '0');
             const formattedDateTime = `${day}/${month}/${year} ${hour}:${min}`;
 
-            // Check if record already exists, if so overwrite, else add new
-            const existingIndex = attendanceRecords.findIndex(r => r.nim === activeStudent.nim);
-            
             const attendanceData = {
                 nim: activeStudent.nim,
                 nama: activeStudent.nama,
@@ -781,19 +908,38 @@
                 photo: lastCapturedPhoto
             };
 
+            if (isFirebaseConnected && firebaseDbRef) {
+                // Kirim dan sinkronisasikan ke Firebase Realtime Database
+                firebaseDbRef.child(activeStudent.nim).set(attendanceData)
+                    .then(() => {
+                        playTone('success');
+                        showToast("Kirim Absen Berhasil", "Data berhasil dikirim dan disinkronkan ke Cloud Database.", "success");
+                    })
+                    .catch((err) => {
+                        console.error("Firebase write error:", err);
+                        showToast("Error Koneksi", "Gagal menyimpan secara online, menyimpan lokal sementara.", "warn");
+                        saveLocally(attendanceData);
+                    });
+            } else {
+                // Simpan secara lokal (mode demo)
+                saveLocally(attendanceData);
+            }
+
+            setTimeout(() => {
+                logoutStudent();
+            }, 1200);
+        }
+
+        function saveLocally(attendanceData) {
+            const existingIndex = attendanceRecords.findIndex(r => r.nim === activeStudent.nim);
             if (existingIndex !== -1) {
                 attendanceRecords[existingIndex] = attendanceData;
             } else {
                 attendanceRecords.push(attendanceData);
             }
-
             playTone('success');
-            showToast("Absen Sukses Dikirim", "Selamat! Data absensi Anda hari ini telah masuk.", "success");
-
-            // Complete simulation with beautiful delay
-            setTimeout(() => {
-                logoutStudent();
-            }, 1200);
+            showToast("Absen Sukses (Lokal)", "Tersimpan pada browser ini (Mode Offline).", "success");
+            renderAttendanceMonitor();
         }
 
         // Lecturer Monitor Dashboard render logic
@@ -809,17 +955,14 @@
             let countAlfa = 0;
 
             REGISTERED_STUDENTS.forEach((student, index) => {
-                // Find matching attendance record if exists
                 const record = attendanceRecords.find(r => r.nim === student.nim);
                 
-                // Track statistics
                 if (record) {
                     if (record.status === 'Hadir') countHadir++;
                     else if (record.status === 'Sakit' || record.status === 'Izin') countSakitIzin++;
                     else if (record.status === 'Alfa') countAlfa++;
                 }
 
-                // Match filters
                 const matchSearch = student.nama.toLowerCase().includes(searchVal) || student.nim.includes(searchVal);
                 let matchStatus = true;
                 
@@ -837,7 +980,6 @@
 
                 if (!matchSearch || !matchStatus) return;
 
-                // Status UI element mapping
                 let statusBadge = `
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200 uppercase">
                         <i class="fa-solid fa-hourglass-start text-[9px]"></i> Belum Absen
@@ -877,7 +1019,6 @@
                         </div>`;
                 }
 
-                // Render row
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100";
                 tr.innerHTML = `
@@ -897,12 +1038,10 @@
                 tbody.appendChild(tr);
             });
 
-            // Set Metrics Updates
             document.getElementById('metric-hadir').textContent = countHadir;
             document.getElementById('metric-sakit-izin').textContent = countSakitIzin;
             document.getElementById('metric-alfa').textContent = countAlfa;
             
-            // Attendance percentage
             const percentage = REGISTERED_STUDENTS.length > 0 ? Math.round((countHadir / REGISTERED_STUDENTS.length) * 100) : 0;
             document.getElementById('metric-percentage').textContent = `${percentage}%`;
         }
@@ -917,10 +1056,27 @@
                 showToast("Daftar Absen Kosong", "Belum ada data absensi untuk dikosongkan.", "warn");
                 return;
             }
-            attendanceRecords = [];
-            playTone('error');
-            renderAttendanceMonitor();
-            showToast("Absen Dihapus", "Seluruh data absensi berhasil dikosongkan.", "success");
+
+            if (isFirebaseConnected && firebaseDbRef) {
+                // Hapus data dari Firebase Realtime Database
+                firebaseDbRef.remove()
+                    .then(() => {
+                        attendanceRecords = [];
+                        playTone('error');
+                        renderAttendanceMonitor();
+                        showToast("Absen Dihapus Online", "Seluruh data absensi di cloud telah dikosongkan.", "success");
+                    })
+                    .catch((err) => {
+                        console.error("Gagal mereset database online:", err);
+                        showToast("Error Penghapusan", "Gagal menghapus database cloud.", "danger");
+                    });
+            } else {
+                // Hapus lokal saja
+                attendanceRecords = [];
+                playTone('error');
+                renderAttendanceMonitor();
+                showToast("Absen Dihapus Lokal", "Seluruh data absensi lokal berhasil dikosongkan.", "success");
+            }
         }
 
         // Modal Controls: Face Zoom
@@ -951,15 +1107,13 @@
             document.getElementById('edit-student-name').textContent = student.nama;
             document.getElementById('edit-student-nim').textContent = `NIM: ${student.nim}`;
             
-            // Adjust mock avatar
             const avatarUrl = record ? record.photo : generateAvatarSvg(student.nama);
             document.getElementById('edit-student-photo').src = avatarUrl;
 
-            // Reset selection status
             const radios = document.getElementsByName('edit-status');
             radios.forEach(radio => {
                 if (record && radio.value === record.status) radio.checked = true;
-                else if (!record && radio.value === 'Hadir') radio.checked = true; // default
+                else if (!record && radio.value === 'Hadir') radio.checked = true; 
                 else radio.checked = false;
             });
 
@@ -1000,30 +1154,38 @@
                 photo: existingIndex !== -1 ? attendanceRecords[existingIndex].photo : generateAvatarSvg(student.nama)
             };
 
-            if (existingIndex !== -1) {
-                attendanceRecords[existingIndex] = updatedData;
+            if (isFirebaseConnected && firebaseDbRef) {
+                // Update ke Firebase Realtime Database
+                firebaseDbRef.child(correctionTargetNim).set(updatedData)
+                    .then(() => {
+                        playTone('success');
+                        closeEditModal();
+                        showToast("Data Disimpan", `Berhasil memperbarui status ${student.nama} (Cloud)`, "success");
+                    });
             } else {
-                attendanceRecords.push(updatedData);
+                // Simpan lokal
+                if (existingIndex !== -1) {
+                    attendanceRecords[existingIndex] = updatedData;
+                } else {
+                    attendanceRecords.push(updatedData);
+                }
+                playTone('success');
+                renderAttendanceMonitor();
+                closeEditModal();
+                showToast("Data Disimpan", `Berhasil memperbarui status ${student.nama} (Lokal)`, "success");
             }
-
-            playTone('success');
-            renderAttendanceMonitor();
-            closeEditModal();
-            showToast("Data Disimpan", `Berhasil memperbarui status ${student.nama}`, "success");
         }
 
         // Excel / CSV Report Exporter
         function exportToExcel() {
             let csvContent = "data:text/csv;charset=utf-8,";
             
-            // Header information
             csvContent += "SIAKAD UNIVERSITAS PATTIMURA AMBON\n";
             csvContent += "Laporan Absensi Kuliah Hari Pertama\n";
             csvContent += "Mata Kuliah: Pendidikan Rekreasi dan Outbond - Kelas C\n";
             csvContent += `Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')}\n\n`;
             
-            // Table headers
-            csvContent += "No,NIM,Nama Mahasiswa,Status Kehadiran,Waktu Presensi,Keterangan/Catatan\n";
+            csvContent += "No,NIM,Nama Mahasiswa,Status Kehadiran,Tanggal & Waktu Presensi,Keterangan/Catatan\n";
 
             REGISTERED_STUDENTS.forEach((student, index) => {
                 const record = attendanceRecords.find(r => r.nim === student.nim);
@@ -1031,7 +1193,6 @@
                 const timeStr = record ? record.time : "-";
                 const noteStr = record ? record.note : "-";
                 
-                // Clean comma values to prevent CSV breakages
                 const cleanName = student.nama.replace(/,/g, '');
                 const cleanNote = noteStr.replace(/,/g, ';');
 
@@ -1041,7 +1202,7 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "Laporan_Absensi_UNPATTI_KelasC_HariPertama.csv");
+            link.setAttribute("download", "Laporan_Absensi_UNPATTI_KelasC.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1059,7 +1220,6 @@
             document.getElementById('toast-title').textContent = title;
             document.getElementById('toast-body').textContent = body;
 
-            // Type color mappings
             if (type === 'success') {
                 iconBg.className = "w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white shrink-0";
                 icon.className = "fa-solid fa-circle-check";
@@ -1074,7 +1234,6 @@
                 icon.className = "fa-solid fa-circle-info";
             }
 
-            // Animate in
             toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
             toast.classList.add('translate-y-0', 'opacity-100');
 
@@ -1100,7 +1259,6 @@
                     synth.triggerAttackRelease("G3", "8n", now);
                     synth.triggerAttackRelease("E3", "4n", now + 0.1);
                 } else {
-                    // standard click sound feedback
                     synth.triggerAttackRelease("C5", "32n", now);
                 }
             } catch (e) {
